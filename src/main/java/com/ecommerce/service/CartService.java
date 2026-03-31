@@ -45,10 +45,7 @@ public class CartService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Product not found with id: " + request.getProductId()));
 
-        if (product.getStockQuantity() < request.getQuantity()) {
-            throw new BadRequestException(
-                    "Not enough stock. Available: " + product.getStockQuantity());
-        }
+        validateStock(product, request.getQuantity());
 
         Optional<CartItem> existingItem =
                 cartItemRepository.findByUserAndProductId(user, product.getId());
@@ -57,10 +54,7 @@ public class CartService {
         if (existingItem.isPresent()) {
             cartItem = existingItem.get();
             int newQuantity = cartItem.getQuantity() + request.getQuantity();
-            if (product.getStockQuantity() < newQuantity) {
-                throw new BadRequestException(
-                        "Not enough stock. Available: " + product.getStockQuantity());
-            }
+            validateStock(product, newQuantity);
             cartItem.setQuantity(newQuantity);
         } else {
             cartItem = CartItem.builder()
@@ -81,10 +75,7 @@ public class CartService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Cart item not found for product id: " + productId));
 
-        if (cartItem.getProduct().getStockQuantity() < quantity) {
-            throw new BadRequestException(
-                    "Not enough stock. Available: " + cartItem.getProduct().getStockQuantity());
-        }
+        validateStock(cartItem.getProduct(), quantity);
 
         cartItem.setQuantity(quantity);
         CartItem updated = cartItemRepository.save(cartItem);
@@ -110,5 +101,13 @@ public class CartService {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User not found with username: " + username));
+    }
+    
+ 
+    private void validateStock(Product product, int requestedQuantity) {
+        if (product.getStockQuantity() < requestedQuantity) {
+            throw new BadRequestException(
+                    "Not enough stock. Available: " + product.getStockQuantity());
+        }
     }
 }

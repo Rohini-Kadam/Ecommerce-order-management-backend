@@ -30,13 +30,25 @@ public class PaymentController {
 
     @PostMapping("/webhook")
     public ResponseEntity<String> handleStripeWebhook(@RequestBody Map<String, Object> payload) {
-        
+
         String type = (String) payload.get("type");
 
+        
+        Object rawData = payload.get("data");
+        if (!(rawData instanceof Map)) {
+            return ResponseEntity.badRequest().body("Invalid payload: missing data");
+        }
         @SuppressWarnings("unchecked")
-        Map<String, Object> data = (Map<String, Object>) payload.get("data");
+        Map<String, Object> data = (Map<String, Object>) rawData;
+
+        
+        Object rawObject = data.get("object");
+        if (!(rawObject instanceof Map)) {
+            return ResponseEntity.badRequest().body("Invalid payload: missing object");
+        }
         @SuppressWarnings("unchecked")
-        Map<String, Object> object = (Map<String, Object>) data.get("object");
+        Map<String, Object> object = (Map<String, Object>) rawObject;
+
         String paymentIntentId = (String) object.get("id");
 
         switch (type) {
@@ -47,10 +59,8 @@ public class PaymentController {
                 paymentService.handlePaymentFailure(paymentIntentId);
                 break;
             default:
-               
                 break;
         }
-
         return ResponseEntity.ok("Webhook processed");
     }
 }

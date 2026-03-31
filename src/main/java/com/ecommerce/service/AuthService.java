@@ -47,18 +47,24 @@ public class AuthService {
                 .role(Role.ROLE_USER)
                 .build();
 
-        userRepository.save(user);
+       
+        User savedUser = userRepository.save(user);
 
+        
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+                new UsernamePasswordAuthenticationToken(
+                        request.getUsername(), request.getPassword()));
 
         String token = tokenProvider.generateToken(authentication);
-        return new AuthResponse(token, user.getUsername(), user.getRole().name());
+
+        
+        return new AuthResponse(token, savedUser.getUsername(), savedUser.getRole().name());
     }
 
     public AuthResponse login(LoginRequest request) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+                new UsernamePasswordAuthenticationToken(
+                        request.getUsername(), request.getPassword()));
 
         String token = tokenProvider.generateToken(authentication);
 

@@ -5,6 +5,8 @@ import com.ecommerce.entity.Role;
 import com.ecommerce.entity.User;
 import com.ecommerce.repository.ProductRepository;
 import com.ecommerce.repository.UserRepository;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,6 +18,24 @@ import java.math.BigDecimal;
 @Profile("!test")
 public class DataLoader implements CommandLineRunner {
 
+	@Value("${app.admin.username:rohi}")
+    private String adminUsername;
+
+    @Value("${app.admin.email:rohi@gmail.com}")
+    private String adminEmail;
+
+    @Value("${app.admin.password:rohi$555}")
+    private String adminPassword;
+
+    @Value("${app.user.username:shruti}")
+    private String userUsername;
+
+    @Value("${app.user.email:shruti@gmail.com}")
+    private String userEmail;
+
+    @Value("${app.user.password:shruti$333}")
+    private String userPassword;
+    
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final PasswordEncoder passwordEncoder;
@@ -33,18 +53,18 @@ public class DataLoader implements CommandLineRunner {
         if (userRepository.count() == 0) {
             //Admin user
             User admin = User.builder()
-                    .username("rohi")
-                    .email("rohi@gmail.com")
-                    .password(passwordEncoder.encode("rohi$555"))
+            		.username(adminUsername)       
+                    .email(adminEmail)             
+                    .password(passwordEncoder.encode(adminPassword)) 
                     .role(Role.ROLE_ADMIN)
                     .build();
             userRepository.save(admin);
 
             // Regular user
             User user = User.builder()
-                    .username("shruti")
-                    .email("shruti@gmail.com")
-                    .password(passwordEncoder.encode("shruti$333"))
+            		.username(userUsername)        
+                    .email(userEmail)              
+                    .password(passwordEncoder.encode(userPassword)) 
                     .role(Role.ROLE_USER)
                     .build();
             userRepository.save(user);

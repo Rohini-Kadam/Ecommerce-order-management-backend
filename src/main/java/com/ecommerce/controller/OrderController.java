@@ -4,6 +4,8 @@ import com.ecommerce.dto.OrderRequest;
 import com.ecommerce.dto.OrderResponse;
 import com.ecommerce.service.OrderService;
 import jakarta.validation.Valid;
+
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -46,7 +48,7 @@ public class OrderController {
                 orderService.getOrderById(userDetails.getUsername(), id));
     }
  // --- TESTING ENDPOINTS FOR QUICK EVALUATION ---
-
+    @Profile("!prod")
     @GetMapping("/{id}/test-success")
     public ResponseEntity<OrderResponse> testPaymentSuccess(
             @AuthenticationPrincipal UserDetails userDetails,
@@ -54,7 +56,7 @@ public class OrderController {
         return ResponseEntity.ok(
                 orderService.updateOrderStatusTest(userDetails.getUsername(), id, com.ecommerce.entity.PaymentStatus.COMPLETED));
     }
-
+    @Profile("!prod")
     @GetMapping("/{id}/test-failed")
     public ResponseEntity<OrderResponse> testPaymentFailed(
             @AuthenticationPrincipal UserDetails userDetails,
